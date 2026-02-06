@@ -35,6 +35,12 @@ function ProtectedRoute({
   return <Component />;
 }
 
+function RootRedirect() {
+  const { user } = useAuth();
+  if (!user) return <Redirect to="/auth" />;
+  return <Redirect to={user.role === "admin" ? "/admin" : "/dashboard"} />;
+}
+
 function Router() {
   return (
     <Switch>
@@ -60,13 +66,7 @@ function Router() {
       </Route>
 
       {/* Root Redirect */}
-      <Route path="/">
-        {(_params) => {
-          const { user } = useAuth();
-          if (!user) return <Redirect to="/auth" />;
-          return <Redirect to={user.role === "admin" ? "/admin" : "/dashboard"} />;
-        }}
-      </Route>
+      <Route path="/" component={RootRedirect} />
 
       <Route component={NotFound} />
     </Switch>
