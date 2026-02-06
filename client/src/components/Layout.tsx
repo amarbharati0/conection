@@ -18,8 +18,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Sidebar />
-      <main className="lg:ml-72 min-h-screen p-4 md:p-8 pt-20 lg:pt-8 transition-all duration-300">
-        <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <main className="lg:ml-72 min-h-screen p-4 md:p-8 pt-20 lg:pt-8 transition-all duration-300 bg-slate-50 dark:bg-slate-950">
+        <div className="max-w-[1600px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
           {children}
         </div>
       </main>
