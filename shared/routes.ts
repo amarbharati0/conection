@@ -70,7 +70,8 @@ export const api = {
       method: 'PATCH' as const,
       path: '/api/tasks/:id',
       input: z.object({
-        status: z.enum(["pending", "completed"]),
+        status: z.enum(["pending", "submitted", "completed"]),
+        deadline: z.string().optional(),
       }),
       responses: {
         200: taskSchema,

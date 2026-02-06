@@ -1,6 +1,6 @@
 import { 
   User, InsertUser, Task, InsertTask, Submission, InsertSubmission, Attendance, InsertAttendance,
-  userSchema
+  userSchema, TaskStatus
 } from "@shared/schema";
 
 export interface IStorage {
@@ -13,7 +13,7 @@ export interface IStorage {
   // Tasks
   getTasks(candidateId?: string): Promise<Task[]>;
   createTask(task: InsertTask): Promise<Task>;
-  updateTaskStatus(id: string, status: "pending" | "completed"): Promise<Task | undefined>;
+  updateTask(id: string, updates: Partial<{ status: TaskStatus; deadline: string }>): Promise<Task | undefined>;
 
   // Submissions
   createSubmission(submission: InsertSubmission): Promise<Submission>;
@@ -53,7 +53,12 @@ export class MemStorage implements IStorage {
     candidates.forEach(c => this.createUser(c));
 
     // Seed Tasks
-    const task = { title: "Morning Drill", description: "Complete the 5km run and submit photo.", assignedTo: "1" }; 
+    const task = { 
+      title: "Morning Drill", 
+      description: "Complete the 5km run and submit photo.", 
+      assignedTo: "1",
+      deadline: new Date(Date.now() + 86400000).toISOString()
+    }; 
     // "1" is likely the first ID generated
     this.createTask(task);
   }
@@ -103,10 +108,10 @@ export class MemStorage implements IStorage {
     return task;
   }
 
-  async updateTaskStatus(id: string, status: "pending" | "completed"): Promise<Task | undefined> {
+  async updateTask(id: string, updates: Partial<{ status: TaskStatus; deadline: string }>): Promise<Task | undefined> {
     const task = this.tasks.get(id);
     if (!task) return undefined;
-    const updatedTask = { ...task, status };
+    const updatedTask = { ...task, ...updates };
     this.tasks.set(id, updatedTask);
     return updatedTask;
   }

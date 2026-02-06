@@ -78,11 +78,9 @@ export async function registerRoutes(
 
   app.patch(api.tasks.update.path.replace(":id", ":id"), async (req, res) => {
     const id = req.params.id;
-    const status = req.body.status;
-    if (status !== "pending" && status !== "completed") {
-      return res.status(400).json({ message: "Invalid status" });
-    }
-    const task = await storage.updateTaskStatus(id as string, status);
+    const { status, deadline } = req.body;
+    
+    const task = await storage.updateTask(id as string, { status, deadline });
     if (!task) return res.status(404).json({ message: "Task not found" });
     res.json(task);
   });
@@ -93,8 +91,8 @@ export async function registerRoutes(
       const input = api.submissions.create.input.parse(req.body);
       const submission = await storage.createSubmission(input);
       
-      // Auto-complete task?
-      await storage.updateTaskStatus(input.taskId, "completed");
+      // Update task to submitted
+      await storage.updateTask(input.taskId, { status: "submitted" });
       
       res.status(201).json(submission);
     } catch (e) {

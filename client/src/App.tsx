@@ -50,6 +50,9 @@ function Router() {
       <Route path="/admin">
         <ProtectedRoute component={AdminDashboard} allowedRole="admin" />
       </Route>
+      <Route path="/admin/tasks">
+        <ProtectedRoute component={TaskManagement} allowedRole="admin" />
+      </Route>
       <Route path="/admin/candidates">
         <ProtectedRoute component={CandidateList} allowedRole="admin" />
       </Route>

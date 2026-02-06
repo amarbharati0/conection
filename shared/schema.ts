@@ -21,7 +21,7 @@ export const userSchema = z.object({
   }).optional(),
 });
 
-export const taskStatus = z.enum(["pending", "completed"]);
+export const taskStatus = z.enum(["pending", "submitted", "completed"]);
 export type TaskStatus = z.infer<typeof taskStatus>;
 
 export const taskSchema = z.object({
@@ -30,6 +30,7 @@ export const taskSchema = z.object({
   description: z.string(),
   assignedTo: z.string(), // candidateId
   status: taskStatus,
+  deadline: z.string().or(z.date()),
   createdAt: z.string().or(z.date()),
 });
 
@@ -39,6 +40,7 @@ export const submissionSchema = z.object({
   candidateId: z.string(),
   photoUrl: z.string().optional(),
   videoUrl: z.string().optional(),
+  feedback: z.string().optional(),
   timestamp: z.string().or(z.date()),
 });
 
