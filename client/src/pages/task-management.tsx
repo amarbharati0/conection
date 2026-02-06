@@ -3,9 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { 
   Task, 
   TaskStatus, 
-  User, 
-  api, 
-  buildUrl 
+  User
 } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 import { 
