@@ -2,36 +2,47 @@ import { Layout } from "@/components/Layout";
 import { useCandidates } from "@/hooks/use-candidates";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Users, CheckCircle2, AlertCircle, MapPin } from "lucide-react";
+import { 
+  Users, 
+  Clock, 
+  CheckCircle2, 
+  BarChart3,
+  TrendingUp,
+  TrendingDown
+} from "lucide-react";
 import { Link } from "wouter";
-import { useAttendance } from "@/hooks/use-attendance";
-import { format } from "date-fns";
 import { 
   BarChart, 
   Bar, 
   XAxis, 
   YAxis, 
   Tooltip, 
-  ResponsiveContainer, 
-  Cell 
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  CartesianGrid
 } from "recharts";
 
-// Mock data for the chart since we don't have an aggregated stats endpoint
-const statsData = [
-  { name: 'Mon', completed: 12, pending: 8 },
-  { name: 'Tue', completed: 15, pending: 5 },
-  { name: 'Wed', completed: 18, pending: 2 },
-  { name: 'Thu', completed: 10, pending: 10 },
-  { name: 'Fri', completed: 14, pending: 6 },
+const taskCompletionData = [
+  { name: 'Mon', completed: 4, previous: 2.5 },
+  { name: 'Tue', completed: 3, previous: 5 },
+  { name: 'Wed', completed: 6, previous: 3.5 },
+  { name: 'Thu', completed: 2, previous: 4 },
+  { name: 'Fri', completed: 8, previous: 3.2 },
+];
+
+const attendanceTrendsData = [
+  { name: 'Mon', value: 4 },
+  { name: 'Tue', value: 3.5 },
+  { name: 'Wed', value: 6 },
+  { name: 'Thu', value: 2.5 },
+  { name: 'Fri', value: 8 },
 ];
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const { data: candidates, isLoading } = useCandidates();
-  const { data: allAttendance } = useAttendance();
 
   if (isLoading) {
     return (
@@ -46,156 +57,167 @@ export default function AdminDashboard() {
   return (
     <Layout>
       <div className="space-y-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold font-display">Overview</h1>
-            <p className="text-muted-foreground mt-1">
-              Welcome back, {user?.name}. Here's what's happening today.
-            </p>
-          </div>
-          <Link href="/admin/candidates">
-            <Button className="rounded-xl shadow-lg shadow-primary/20 gap-2">
-              <Users className="w-4 h-4" />
-              Manage Candidates
-            </Button>
-          </Link>
+        <div>
+          <h1 className="text-4xl font-bold font-display tracking-tight text-slate-900 dark:text-slate-100">Dashboard Overview</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">
+            Welcome back, here's what's happening today.
+          </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="glass-card">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 rounded-3xl p-2">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Candidates</CardTitle>
-              <Users className="w-4 h-4 text-primary" />
+              <div className="space-y-1">
+                <CardTitle className="text-sm font-medium text-slate-500">Total Candidates</CardTitle>
+                <div className="text-3xl font-bold">{candidates?.length || 0}</div>
+              </div>
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
+                <Users className="w-5 h-5 text-blue-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">{candidates?.length || 0}</div>
-              <p className="text-xs text-muted-foreground mt-1">+2 from last week</p>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-full text-xs font-semibold">
+                  <TrendingUp className="w-3 h-3" />
+                  +12%
+                </div>
+                <span className="text-xs text-slate-400">vs last month</span>
+              </div>
             </CardContent>
           </Card>
           
-          <Card className="glass-card">
+          <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 rounded-3xl p-2">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Tasks Completed</CardTitle>
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
+              <div className="space-y-1">
+                <CardTitle className="text-sm font-medium text-slate-500">Active Tasks</CardTitle>
+                <div className="text-3xl font-bold">0</div>
+              </div>
+              <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-2xl">
+                <Clock className="w-5 h-5 text-orange-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">128</div>
-              <p className="text-xs text-muted-foreground mt-1">84% completion rate</p>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-full text-xs font-semibold">
+                  <TrendingUp className="w-3 h-3" />
+                  +5%
+                </div>
+                <span className="text-xs text-slate-400">vs last month</span>
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="glass-card">
+          <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 rounded-3xl p-2">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Pending Review</CardTitle>
-              <AlertCircle className="w-4 h-4 text-amber-500" />
+              <div className="space-y-1">
+                <CardTitle className="text-sm font-medium text-slate-500">Completed Tasks</CardTitle>
+                <div className="text-3xl font-bold">0</div>
+              </div>
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">14</div>
-              <p className="text-xs text-muted-foreground mt-1">Requires attention</p>
+              <div className="h-6 mt-2" /> {/* Placeholder for alignment */}
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 rounded-3xl p-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div className="space-y-1">
+                <CardTitle className="text-sm font-medium text-slate-500">Attendance Rate</CardTitle>
+                <div className="text-3xl font-bold">0%</div>
+              </div>
+              <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-2xl">
+                <BarChart3 className="w-5 h-5 text-purple-600" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center gap-1 px-2 py-0.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-full text-xs font-semibold">
+                  <TrendingDown className="w-3 h-3" />
+                  -2%
+                </div>
+                <span className="text-xs text-slate-400">vs last month</span>
+              </div>
             </CardContent>
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Chart */}
-          <Card>
+          {/* Bar Chart */}
+          <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 rounded-[2rem] overflow-hidden">
             <CardHeader>
-              <CardTitle>Task Completion Trend</CardTitle>
+              <CardTitle className="text-xl font-bold font-display">Weekly Task Completion</CardTitle>
             </CardHeader>
-            <CardContent className="h-[300px]">
+            <CardContent className="h-[350px] pr-8">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={statsData}>
-                  <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip 
-                    cursor={{fill: 'transparent'}}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                <BarChart data={taskCompletionData} margin={{ top: 20, right: 0, left: 0, bottom: 0 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis 
+                    dataKey="name" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tick={{fill: '#94a3b8'}}
+                    dy={10}
                   />
-                  <Bar dataKey="completed" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={32} />
-                  <Bar dataKey="pending" fill="hsl(var(--muted))" radius={[4, 4, 0, 0]} barSize={32} />
+                  <YAxis 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tick={{fill: '#94a3b8'}}
+                  />
+                  <Tooltip 
+                    cursor={{fill: '#f8fafc'}}
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Bar dataKey="completed" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={24} />
+                  <Bar dataKey="previous" fill="#e2e8f0" radius={[6, 6, 0, 0]} barSize={24} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
-          {/* Recent Candidates List */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Registered Candidates</CardTitle>
-              <Link href="/admin/candidates">
-                <Button variant="ghost" size="sm">View All</Button>
-              </Link>
+          {/* Line Chart */}
+          <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 rounded-[2rem] overflow-hidden">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold font-display">Attendance Trends</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {candidates?.slice(0, 5).map((candidate) => (
-                <div key={candidate.id} className="flex items-center justify-between group">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9 border border-border">
-                      <AvatarFallback className="bg-primary/10 text-primary">
-                        {candidate.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-sm font-medium leading-none">{candidate.name}</p>
-                      <p className="text-xs text-muted-foreground mt-1">@{candidate.username}</p>
-                    </div>
-                  </div>
-                  <Link href={`/admin/candidates/${candidate.id}`}>
-                    <Button variant="outline" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      Manage
-                    </Button>
-                  </Link>
-                </div>
-              ))}
-              
-              {(!candidates || candidates.length === 0) && (
-                <div className="text-center py-8 text-muted-foreground">
-                  No candidates found.
-                </div>
-              )}
+            <CardContent className="h-[350px] pr-8">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={attendanceTrendsData} margin={{ top: 20, right: 0, left: 0, bottom: 0 }}>
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis 
+                    dataKey="name" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tick={{fill: '#94a3b8'}}
+                    dy={10}
+                  />
+                  <YAxis 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                    tick={{fill: '#94a3b8'}}
+                  />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="value" 
+                    stroke="#10b981" 
+                    strokeWidth={3} 
+                    dot={false}
+                    animationDuration={1500}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Live Attendance Feed */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold font-display">Live Attendance Feed</h2>
-            <Link href="/admin/candidates">
-              <Button variant="outline" size="sm">History</Button>
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {allAttendance?.slice(0, 4).map(record => {
-              const candidate = candidates?.find(c => c.id === record.candidateId);
-              return (
-                <Card key={record.id} className="overflow-hidden group">
-                  <div className="aspect-[4/3] relative">
-                    <img 
-                      src={record.livePhotoUrl} 
-                      alt="Attendance" 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-2 left-2 right-2 text-white">
-                      <p className="text-xs font-medium truncate">{candidate?.name || 'Candidate'}</p>
-                      <div className="flex items-center gap-1 mt-0.5 text-[10px] opacity-80">
-                        <MapPin className="w-2.5 h-2.5" />
-                        <span className="truncate">{record.location}</span>
-                      </div>
-                      <p className="text-[10px] opacity-60">{format(new Date(record.timestamp), "HH:mm, MMM d")}</p>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-            {(!allAttendance || allAttendance.length === 0) && (
-              <div className="col-span-full py-8 text-center text-muted-foreground border-2 border-dashed rounded-xl">
-                No attendance logs recorded today.
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </Layout>

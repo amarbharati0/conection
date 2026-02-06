@@ -7,7 +7,11 @@ import {
   LogOut, 
   Camera,
   Menu,
-  X
+  X,
+  Bell,
+  Settings,
+  FileText,
+  CalendarDays
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -19,8 +23,13 @@ export function Sidebar() {
   const [open, setOpen] = useState(false);
 
   const adminLinks = [
-    { href: "/admin", label: "Overview", icon: LayoutDashboard },
+    { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/candidates", label: "Candidates", icon: Users },
+    { href: "/admin/tasks", label: "Task Management", icon: CheckSquare },
+    { href: "/admin/attendance", label: "Attendance", icon: CalendarDays },
+    { href: "/admin/reports", label: "Reports", icon: FileText },
+    { href: "/admin/notifications", label: "Notifications", icon: Bell },
+    { href: "/admin/settings", label: "Settings", icon: Settings },
   ];
 
   const candidateLinks = [
@@ -31,17 +40,17 @@ export function Sidebar() {
   const links = user?.role === "admin" ? adminLinks : candidateLinks;
 
   const NavContent = () => (
-    <div className="flex flex-col h-full py-6">
-      <div className="px-6 mb-8">
-        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-indigo-600 font-display">
+    <div className="flex flex-col h-full py-6 bg-slate-50 dark:bg-slate-950/50">
+      <div className="px-6 mb-8 flex items-center gap-3">
+        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+          <div className="w-5 h-5 bg-white rounded-full opacity-90" />
+        </div>
+        <h1 className="text-xl font-bold font-display tracking-tight">
           MonitorPro
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {user?.role === "admin" ? "Admin Portal" : "Candidate Portal"}
-        </p>
       </div>
 
-      <nav className="flex-1 px-4 space-y-2">
+      <nav className="flex-1 px-4 space-y-1">
         {links.map((link) => {
           const Icon = link.icon;
           const isActive = location === link.href;
@@ -50,14 +59,14 @@ export function Sidebar() {
             <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>
               <div
                 className={`
-                  flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer
+                  flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer group
                   ${isActive 
                     ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25" 
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    : "text-slate-500 dark:text-slate-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
                   }
                 `}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-slate-400 group-hover:text-primary"}`} />
                 <span className="font-medium">{link.label}</span>
               </div>
             </Link>
@@ -66,21 +75,16 @@ export function Sidebar() {
       </nav>
 
       <div className="px-4 mt-auto">
-        <div className="bg-card border border-border rounded-xl p-4 mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-              {user?.username.charAt(0).toUpperCase()}
-            </div>
-            <div className="overflow-hidden">
-              <p className="font-medium truncate">{user?.name}</p>
-              <p className="text-xs text-muted-foreground truncate">@{user?.username}</p>
-            </div>
+        <div className="bg-slate-100 dark:bg-slate-900/50 rounded-2xl p-4 mb-4 border border-slate-200/50 dark:border-slate-800/50">
+          <div className="flex flex-col gap-1">
+            <p className="text-xs font-semibold text-primary uppercase tracking-wider">Pro Plan</p>
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Admin Access</p>
           </div>
         </div>
         
         <Button 
-          variant="outline" 
-          className="w-full justify-start gap-3 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20"
+          variant="ghost" 
+          className="w-full justify-start gap-3 text-slate-500 hover:text-destructive hover:bg-destructive/10 rounded-xl"
           onClick={logout}
         >
           <LogOut className="w-4 h-4" />
@@ -96,7 +100,7 @@ export function Sidebar() {
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="shadow-md">
+            <Button variant="outline" size="icon" className="shadow-md bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
               <Menu className="w-5 h-5" />
             </Button>
           </SheetTrigger>
@@ -107,7 +111,7 @@ export function Sidebar() {
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-72 h-screen border-r border-border bg-card/50 backdrop-blur-sm fixed left-0 top-0 z-40">
+      <aside className="hidden lg:block w-72 h-screen border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 fixed left-0 top-0 z-40">
         <NavContent />
       </aside>
     </>
