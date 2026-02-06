@@ -1,6 +1,7 @@
 import { Layout } from "@/components/Layout";
 import { useCandidates } from "@/hooks/use-candidates";
 import { useAuth } from "@/hooks/use-auth";
+import { useTasks } from "@/hooks/use-tasks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -9,7 +10,8 @@ import {
   CheckCircle2, 
   BarChart3,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  ClipboardList
 } from "lucide-react";
 import { Link } from "wouter";
 import { 
@@ -42,7 +44,13 @@ const attendanceTrendsData = [
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const { data: candidates, isLoading } = useCandidates();
+  const { data: candidates, isLoading: candidatesLoading } = useCandidates();
+  const { data: tasks, isLoading: tasksLoading } = useTasks();
+
+  const isLoading = candidatesLoading || tasksLoading;
+
+  const activeTasks = tasks?.filter(t => t.status === "pending" || t.status === "submitted") || [];
+  const completedTasks = tasks?.filter(t => t.status === "completed") || [];
 
   if (isLoading) {
     return (
@@ -91,7 +99,7 @@ export default function AdminDashboard() {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div className="space-y-1">
                 <CardTitle className="text-sm font-medium text-slate-500">Active Tasks</CardTitle>
-                <div className="text-3xl font-bold">0</div>
+                <div className="text-3xl font-bold">{activeTasks.length}</div>
               </div>
               <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-2xl">
                 <Clock className="w-5 h-5 text-orange-600" />
@@ -112,7 +120,7 @@ export default function AdminDashboard() {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div className="space-y-1">
                 <CardTitle className="text-sm font-medium text-slate-500">Completed Tasks</CardTitle>
-                <div className="text-3xl font-bold">0</div>
+                <div className="text-3xl font-bold">{completedTasks.length}</div>
               </div>
               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl">
                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
@@ -123,26 +131,19 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 rounded-3xl p-2">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <div className="space-y-1">
-                <CardTitle className="text-sm font-medium text-slate-500">Attendance Rate</CardTitle>
-                <div className="text-3xl font-bold">0%</div>
-              </div>
-              <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-2xl">
-                <BarChart3 className="w-5 h-5 text-purple-600" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2 mt-2">
-                <div className="flex items-center gap-1 px-2 py-0.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-full text-xs font-semibold">
-                  <TrendingDown className="w-3 h-3" />
-                  -2%
+          <Link href="/admin/tasks" className="block cursor-pointer">
+            <Card className="border-none shadow-sm bg-primary/10 hover:bg-primary/20 transition-colors rounded-3xl p-2 h-full">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <div className="space-y-1">
+                  <CardTitle className="text-sm font-medium text-primary">Manage Tasks</CardTitle>
+                  <div className="text-xs text-primary/80">Go to task board →</div>
                 </div>
-                <span className="text-xs text-slate-400">vs last month</span>
-              </div>
-            </CardContent>
-          </Card>
+                <div className="p-3 bg-primary/20 rounded-2xl">
+                  <ClipboardList className="w-5 h-5 text-primary" />
+                </div>
+              </CardHeader>
+            </Card>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

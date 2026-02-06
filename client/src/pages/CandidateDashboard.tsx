@@ -24,10 +24,11 @@ export default function CandidateDashboard() {
   const [proofUrl, setProofUrl] = useState("");
   const createSubmission = useCreateSubmission();
 
-  const activeTasks = tasks?.filter(t => t.status === "pending") || [];
+  const activeTasks = tasks?.filter(t => t.status === "pending" || t.status === "submitted") || [];
   const completedTasks = tasks?.filter(t => t.status === "completed") || [];
 
   const handleUpload = (task: Task) => {
+    if (task.status === "submitted") return; // Prevent re-uploading if already submitted
     setSelectedTask(task);
   };
 
@@ -108,12 +109,24 @@ export default function CandidateDashboard() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {activeTasks.map(task => (
-                  <TaskCard 
-                    key={task.id} 
-                    task={task} 
-                    isCandidate={true} 
-                    onUpload={handleUpload}
-                  />
+                  <div key={task.id} className="relative">
+                    <TaskCard 
+                      task={task} 
+                      isCandidate={true} 
+                      onUpload={handleUpload}
+                    />
+                    {task.deadline && (
+                      <div className="mt-2 flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-full text-[10px] font-bold uppercase tracking-wider w-fit">
+                        <Clock className="w-3 h-3" />
+                        Deadline: {format(new Date(task.deadline), "MMM d, HH:mm")}
+                      </div>
+                    )}
+                    {task.status === "submitted" && (
+                      <div className="absolute top-2 right-2 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                        Submitted
+                      </div>
+                    )}
+                  </div>
                 ))}
                 {activeTasks.length === 0 && (
                   <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed border-border rounded-xl">
