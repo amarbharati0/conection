@@ -9,6 +9,7 @@ import NotFound from "@/pages/not-found";
 // Pages
 import AuthPage from "@/pages/AuthPage";
 import AdminDashboard from "@/pages/AdminDashboard";
+import TaskManagement from "@/pages/task-management";
 import CandidateList from "@/pages/CandidateList";
 import CandidateDetails from "@/pages/CandidateDetails";
 import CandidateDashboard from "@/pages/CandidateDashboard";
@@ -49,6 +50,9 @@ function Router() {
       {/* Admin Routes */}
       <Route path="/admin">
         <ProtectedRoute component={AdminDashboard} allowedRole="admin" />
+      </Route>
+      <Route path="/admin/tasks">
+        <ProtectedRoute component={TaskManagement} allowedRole="admin" />
       </Route>
       <Route path="/admin/candidates">
         <ProtectedRoute component={CandidateList} allowedRole="admin" />

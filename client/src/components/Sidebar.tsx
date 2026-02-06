@@ -25,6 +25,7 @@ export function Sidebar() {
   const adminLinks = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
     { href: "/admin/candidates", label: "Candidates", icon: Users },
+    { href: "/admin/tasks", label: "Task Management", icon: CheckSquare },
     { href: "/admin/attendance", label: "Attendance", icon: CalendarDays },
     { href: "/admin/reports", label: "Reports", icon: FileText },
     { href: "/admin/notifications", label: "Notifications", icon: Bell },
