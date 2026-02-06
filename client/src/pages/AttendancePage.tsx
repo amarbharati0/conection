@@ -16,11 +16,22 @@ export default function AttendancePage() {
   
   const [mode, setMode] = useState<"view" | "capture">("view");
   const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [location, setLocation] = useState<string>("Locating...");
 
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc) {
       setImgSrc(imageSrc);
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setLocation(`${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+          },
+          () => setLocation("Location Access Denied")
+        );
+      } else {
+        setLocation("Geolocation Not Supported");
+      }
     }
   }, [webcamRef]);
 
@@ -29,12 +40,13 @@ export default function AttendancePage() {
     
     markAttendance.mutate({
       candidateId: user!.id,
-      livePhotoUrl: imgSrc, // Send Base64 directly for MVP simplicity
-      location: "Remote Check-in", // Could use Geolocation API here
+      livePhotoUrl: imgSrc,
+      location: location,
     }, {
       onSuccess: () => {
         setMode("view");
         setImgSrc(null);
+        setLocation("Locating...");
       }
     });
   };
@@ -112,6 +124,7 @@ export default function AttendancePage() {
                   <div className="absolute bottom-3 left-3 text-white opacity-0 group-hover:opacity-100 transition-opacity">
                     <p className="font-bold">{format(new Date(record.timestamp), "HH:mm")}</p>
                     <p className="text-xs opacity-80">{format(new Date(record.timestamp), "MMMM d")}</p>
+                    <p className="text-[10px] opacity-70 mt-1 truncate max-w-[120px]">{record.location}</p>
                   </div>
                 </div>
               </Card>

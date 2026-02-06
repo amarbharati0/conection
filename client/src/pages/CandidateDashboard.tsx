@@ -4,8 +4,10 @@ import { useTasks } from "@/hooks/use-tasks";
 import { useAttendance } from "@/hooks/use-attendance";
 import { TaskCard } from "@/components/TaskCard";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { MapPin, Clock } from "lucide-react";
+import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -58,8 +60,7 @@ export default function CandidateDashboard() {
           </p>
         </div>
 
-        {/* Status Cards */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-none shadow-xl">
             <CardContent className="p-6">
               <div className="text-4xl font-bold mb-1">{activeTasks.length}</div>
@@ -70,6 +71,27 @@ export default function CandidateDashboard() {
             <CardContent className="p-6">
               <div className="text-4xl font-bold mb-1 text-green-600">{completedTasks.length}</div>
               <div className="text-muted-foreground text-sm font-medium">Completed</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-card shadow-lg border-primary/20">
+            <CardHeader className="p-4 pb-0">
+              <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Latest Attendance</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-2">
+              {attendance && attendance.length > 0 ? (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-sm font-bold">
+                    <Clock className="w-4 h-4 text-primary" />
+                    {format(new Date(attendance[0].timestamp), "HH:mm, MMM d")}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span className="truncate">{attendance[0].location}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground italic">No logs yet today</div>
+              )}
             </CardContent>
           </Card>
         </div>
