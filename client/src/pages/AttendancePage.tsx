@@ -23,11 +23,28 @@ export default function AttendancePage() {
     if (imageSrc) {
       setImgSrc(imageSrc);
       if ("geolocation" in navigator) {
+        // High accuracy for better verification
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            setLocation(`${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`);
+            setLocation(`${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`);
           },
-          () => setLocation("Location Access Denied")
+          (error) => {
+            console.error("Geolocation error:", error);
+            switch(error.code) {
+              case error.PERMISSION_DENIED:
+                setLocation("Location Access Denied - Please enable in browser settings");
+                break;
+              case error.POSITION_UNAVAILABLE:
+                setLocation("Location Unavailable");
+                break;
+              case error.TIMEOUT:
+                setLocation("Location Timeout");
+                break;
+              default:
+                setLocation("Location Error");
+            }
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       } else {
         setLocation("Geolocation Not Supported");

@@ -82,7 +82,7 @@ export async function registerRoutes(
     if (status !== "pending" && status !== "completed") {
       return res.status(400).json({ message: "Invalid status" });
     }
-    const task = await storage.updateTaskStatus(id, status);
+    const task = await storage.updateTaskStatus(id as string, status);
     if (!task) return res.status(404).json({ message: "Task not found" });
     res.json(task);
   });
