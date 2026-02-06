@@ -32,6 +32,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertTaskSchema } from "@shared/schema";
@@ -130,6 +131,31 @@ export default function TaskManagement() {
                   <Clock className="w-3 h-3" />
                   <span>Deadline: {format(new Date(task.deadline), "PPp")}</span>
                 </div>
+                {status === "pending" && (
+                  <div className="mt-2 space-y-2">
+                    <div className="flex justify-between text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+                      <span>Progress</span>
+                      <span>{task.progress || 0}%</span>
+                    </div>
+                    <Slider
+                      value={[task.progress || 0]}
+                      max={100}
+                      step={1}
+                      onValueChange={([value]) => {
+                        // Optimistic update if needed, but for now just wait for mutation
+                      }}
+                      onValueCommit={([value]) => 
+                        updateTaskMutation.mutate({ 
+                          id: task.id, 
+                          updates: { 
+                            progress: value,
+                            status: value === 100 ? "submitted" : "pending"
+                          } 
+                        })
+                      }
+                    />
+                  </div>
+                )}
                 {status === "submitted" && (
                   <Button 
                     size="sm" 

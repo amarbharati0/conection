@@ -102,13 +102,14 @@ export class MemStorage implements IStorage {
       ...insertTask, 
       id, 
       status: "pending",
+      progress: 0,
       createdAt: new Date().toISOString()
     };
     this.tasks.set(id, task);
     return task;
   }
 
-  async updateTask(id: string, updates: Partial<{ status: TaskStatus; deadline: string }>): Promise<Task | undefined> {
+  async updateTask(id: string, updates: Partial<Task>): Promise<Task | undefined> {
     const task = this.tasks.get(id);
     if (!task) return undefined;
     const updatedTask = { ...task, ...updates };

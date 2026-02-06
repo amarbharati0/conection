@@ -30,6 +30,7 @@ export const taskSchema = z.object({
   description: z.string(),
   assignedTo: z.string(), // candidateId
   status: taskStatus,
+  progress: z.number().min(0).max(100).default(0),
   deadline: z.string().or(z.date()),
   createdAt: z.string().or(z.date()),
 });
@@ -60,7 +61,7 @@ export type Attendance = z.infer<typeof attendanceSchema>;
 
 // Insert Schemas (for API requests)
 export const insertUserSchema = userSchema.omit({ id: true });
-export const insertTaskSchema = taskSchema.omit({ id: true, createdAt: true, status: true });
+export const insertTaskSchema = taskSchema.omit({ id: true, createdAt: true, status: true, progress: true });
 export const insertSubmissionSchema = submissionSchema.omit({ id: true, timestamp: true });
 export const insertAttendanceSchema = attendanceSchema.omit({ id: true, timestamp: true });
 
