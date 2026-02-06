@@ -97,53 +97,51 @@ export default function TaskManagement() {
   };
 
   const StatusColumn = ({ title, status, tasks, color }: { title: string; status: TaskStatus; tasks: Task[]; color: string }) => (
-    <div className="flex flex-col gap-4 min-w-[300px] flex-1">
-      <div className="flex items-center justify-between px-2">
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${color}`} />
-          <h3 className="font-semibold uppercase text-sm tracking-wider text-muted-foreground">
-            {title} ({tasks.length})
+    <div className="flex flex-col gap-5 min-w-[300px] flex-1">
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-2.5">
+          <div className={`w-2.5 h-2.5 rounded-full shadow-sm ${color}`} />
+          <h3 className="font-bold uppercase text-[11px] tracking-[0.1em] text-muted-foreground">
+            {title} <span className="ml-1 opacity-50">({tasks.length})</span>
           </h3>
         </div>
       </div>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-4">
         {tasks.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="py-8 text-center text-muted-foreground text-sm">
+          <Card className="border-dashed bg-muted/20">
+            <CardContent className="py-10 text-center text-muted-foreground text-sm font-medium italic">
               No {status} tasks
             </CardContent>
           </Card>
         ) : (
           tasks.map((task) => (
-            <Card key={task.id} className="hover-elevate">
-              <CardHeader className="p-4 pb-2">
-                <CardTitle className="text-base">{task.title}</CardTitle>
-                <CardDescription className="line-clamp-2 text-xs">
+            <Card key={task.id} className="hover-elevate shadow-sm border-border/50">
+              <CardHeader className="p-5 pb-2">
+                <CardTitle className="text-lg font-bold tracking-tight leading-none">{task.title}</CardTitle>
+                <CardDescription className="line-clamp-2 text-xs mt-1.5 leading-relaxed">
                   {task.description}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-4 pt-0 flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <UserIcon className="w-3 h-3" />
-                  <span>Assigned to: {candidates.find(c => c.id === task.assignedTo)?.name || 'Unknown'}</span>
+              <CardContent className="p-5 pt-0 flex flex-col gap-3">
+                <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground/80">
+                  <UserIcon className="w-3.5 h-3.5" />
+                  <span>Assigned to: <span className="text-foreground">{candidates.find(c => c.id === task.assignedTo)?.name || 'Unknown'}</span></span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Clock className="w-3 h-3" />
-                  <span>Deadline: {format(new Date(task.deadline), "PPp")}</span>
+                <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground/80">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span>Deadline: <span className="text-foreground">{format(new Date(task.deadline), "MMM d, h:mm a")}</span></span>
                 </div>
                 {status === "pending" && (
-                  <div className="mt-2 space-y-2">
-                    <div className="flex justify-between text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+                  <div className="mt-4 space-y-3">
+                    <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest text-muted-foreground/80">
                       <span>Progress</span>
-                      <span>{task.progress || 0}%</span>
+                      <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-md">{task.progress || 0}%</span>
                     </div>
                     <Slider
                       value={[task.progress || 0]}
                       max={100}
                       step={1}
-                      onValueChange={([value]) => {
-                        // Optimistic update if needed, but for now just wait for mutation
-                      }}
+                      className="cursor-pointer"
                       onValueCommit={([value]) => 
                         updateTaskMutation.mutate({ 
                           id: task.id, 
@@ -266,8 +264,8 @@ export default function TaskManagement() {
         </Dialog>
       </div>
 
-      <div className="flex gap-6 overflow-x-auto pb-4">
-        <StatusColumn title="Pending" status="pending" tasks={tasksByStatus.pending} color="bg-slate-400" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <StatusColumn title="Pending" status="pending" tasks={tasksByStatus.pending} color="bg-amber-500" />
         <StatusColumn title="Submitted" status="submitted" tasks={tasksByStatus.submitted} color="bg-blue-500" />
         <StatusColumn title="Completed" status="completed" tasks={tasksByStatus.completed} color="bg-green-500" />
       </div>
